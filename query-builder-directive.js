@@ -2,9 +2,9 @@ var queryBuilder = angular.module('queryBuilder', []);
 
 queryBuilder.run(['$templateCache', function($templateCache) {
 	$templateCache.put('/queryBuilderDirective.html',
-		'<div class="panel panel-default">' +
-			'<div ng-if="!!title" class="panel-heading">{{title}}</div>' +
-			'<div class="panel-body">' +
+		'<div ng-class="classes.panels.wrapper">' +
+			'<div ng-if="!!title" ng-class="classes.panels.heading">{{title}}</div>' +
+			'<div ng-class="classes.panels.body">' +
         '<div class="form-inline">' +
             '<select ng-if="operators.length > 1" ng-options="o.name for o in operators" ng-model="group.operator" class="form-control"></select>' +
             '<button ng-click="addCondition()" ng-class="classes.addButton"><span ng-class="classes.addIcon"></span> Add Condition</button>' +
@@ -375,6 +375,22 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 
 						if (scope.settings && Object.keys(scope.settings).indexOf('separateLinesWithOperator') !== -1) {
 							scope.separateLinesWithOperator = scope.settings.separateLinesWithOperator;
+						}
+
+						if (scope.settings && Object.keys(scope.settings).indexOf('bootstrapPanelsEnabled') !== -1) {
+							if (scope.settings.panelsEnabled) {
+								scope.classes.panels = {
+									wrapper: 'panel panel-default',
+									body: 'panel-body',
+									heading: 'panel-heading'
+								}
+							}
+						} else {
+							scope.classes.panels = {
+								wrapper: 'panel panel-default',
+								body: 'panel-body',
+								heading: 'panel-heading'
+							}
 						}
 					});
 			}

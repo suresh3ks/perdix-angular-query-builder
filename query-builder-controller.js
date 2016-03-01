@@ -5,8 +5,8 @@ app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, q
 			id: 1,
 			name: 'IsAwsome',
 			options: [
-				{ name: 'wow', id:1, value: 7 },
-				{ name: 'yes', id:2, value: 8 }
+				{ name: 'wow', id: 1, value: 7 },
+				{ name: 'yes', id: 2, value: 8 }
 			]
 		},
 		{ name: 'Lastname', id: 2 },
@@ -22,7 +22,7 @@ app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, q
 		{
 			name: 'Country', id: 5
 		},
-		{ name: 'FirstName', id: 6}
+		{ name: 'FirstName', id: 6 }
 	];
 
 	$scope.comparators = [
@@ -36,8 +36,8 @@ app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, q
 	];
 
 	$scope.operators = [
-						{ name: 'AND', value:'&&' },
-						{ name: 'OR', value:'||' }
+						{ name: 'AND', value: '&&' },
+						{ name: 'OR', value: '||' }
 	];
 
 	$scope.operators1 = [
@@ -58,7 +58,8 @@ app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, q
 		removeIconClass: 'glyphicon glyphicon-minus',
 		addButtonClass: 'btn btn-sm btn-success',
 		removeButtonClass: 'btn btn-sm btn-danger',
-		separateLinesWithOperator: true
+		separateLinesWithOperator: true,
+		bootstrapPanelsEnabled: false
 	};
 
 	$scope.$watch('filter', function(newValue) {
