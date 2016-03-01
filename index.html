@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en" ng-app="app">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Angular.js Query Builder</title>
+
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/styles.css" rel="stylesheet">
+  </head>
+  <body>
+    <a href="https://github.com/pkempenaers/angular-query-builder"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+
+    <div class="container" ng-controller="QueryBuilderCtrl">
+    <h1>An Angular.js Query Builder based on <a href="https://github.com/mfauveau/angular-query-builder">mfauveau's query builder</a></h1>
+
+				<div>
+					<h2>Example, start from object</h2>
+					<div class="alert alert-info">
+							<strong>Example Output Readable</strong><br />
+							<p ng-bind-html="outputReadable"></p>
+							<string>Example Output as string</string><br />
+							<p ng-bind-html="outputString"></p>
+					</div>
+
+					<query-builder settings="settings1" fields="fields" operators="operators1" comparators="comparators" group="filter.group"></query-builder>
+				</div>
+
+			<div>
+				<h2>Example, start from string</h2>
+				<div class="alert alert-info">
+					<strong>Example Output Readable</strong><br />
+					<p ng-bind-html="output2Readable"></p>
+					<strong>Example Output as string</strong><br />
+					<p ng-bind-html="output2String"></p>
+				</div>
+
+				<query-builder title="query-builder" fields="fields" operators="operators" comparators="comparators" group="filter2.group" as-string="queryAsString"></query-builder>
+			</div>
+    </div>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.18/angular-sanitize.min.js"></script>
+    <script src="query-builder-directive.js"></script>
+		<script src="query-builder-controller.js"></script>
+  </body>
+</html>
