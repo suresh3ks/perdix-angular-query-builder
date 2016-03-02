@@ -19,8 +19,8 @@ queryBuilder.run(['$templateCache', function($templateCache) {
                     '</div>' +
                     '<div ng-switch-default="ng-switch-default">' +
 											'<div class="form-inline">' +
-													'<select ng-options="t.name for t in fields" ng-model="rule.field" class="form-control"></select>' +
-													'<select ng-options="c.name for c in comparators" ng-model="rule.comparator" class="form-control"></select>' +
+													'<select ng-change="changeField($index)" ng-options="t.name for t in fields" ng-model="rule.field" class="form-control"></select>' +
+													'<select ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in comparators" ng-model="rule.comparator" class="form-control"></select>' +
 													'<input ng-if="!rule.field.options || rule.field.options.length === 0"type="text" ng-model="rule.data" class="form-control"/>' +
 													'<select ng-if="rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
 													'<select ng-if="rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
@@ -328,6 +328,19 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 
 				scope.removeGroup = function() {
 					"group" in scope.$parent && scope.$parent.group.rules.splice(scope.$parent.$index, 1);
+				};
+
+				scope.changeField = function(ruleId) {
+					if (!!scope.group.rules[ruleId].field.disabledComparators) {
+						if (scope.group.rules[ruleId].field.disabledComparators.indexOf(scope.group.rules[ruleId].comparator.id) !== -1) {
+							scope.comparators.some(function(comparator) {
+								if (scope.group.rules[ruleId].field.disabledComparators.indexOf(comparator.id)) {
+									scope.group.rules[ruleId].comparator = comparator;
+									return true;
+								}
+							});
+						}
+					}
 				};
 
 				directive || (directive = $compile(content));

@@ -10,7 +10,12 @@ app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, q
 			]
 		},
 		{ name: 'Lastname', id: 2 },
-		{ name: 'Birthdate', id: 3 },
+		{
+			name: 'Birthdate', id: 3,
+			disabledComparators: [
+					1
+			]
+		},
 		{
 			name: 'City', id: 4,
 			options: [
@@ -26,13 +31,13 @@ app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, q
 	];
 
 	$scope.comparators = [
-		{ name: 'equal to', value: '==' },
-		{ name: 'not equal to', value: '!=' },
-		{ name: 'smaller than', value: '<' },
-		{ name: 'smaller than or equal to', value: '<=' },
-		{ name: 'greater than', value: '>' },
-		{ name: 'greater than or equal to', value: '>=' },
-		{ name: 'in', value: '->' }
+		{ id: 1, name: 'equal to', value: '==' },
+		{ id: 2, name: 'not equal to', value: '!=' },
+		{ id: 3, name: 'smaller than', value: '<' },
+		{ id: 4, name: 'smaller than or equal to', value: '<=' },
+		{ id: 5, name: 'greater than', value: '>' },
+		{ id: 6, name: 'greater than or equal to', value: '>=' },
+		{ id: 7, name: 'in', value: '->' }
 	];
 
 	$scope.operators = [

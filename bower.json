@@ -1,5 +1,5 @@
 {
-	"name": "pkempenaers-query-builder",
+	"name": "angular-query-builder",
 	"version": "0.0.0",
 	"main": "./query-builder-directive.js"
 }
