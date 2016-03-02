@@ -1,5 +1,10 @@
 ﻿var app = angular.module('app', ['ngSanitize', 'queryBuilder']);
-app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, queryService) {
+app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', function($scope, $templateCache, queryService) {
+	$templateCache.put('test',
+		'test <select ng-if="rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<select ng-if="!rule.field.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>'
+	);
+
 	$scope.fields = [
 		{
 			id: 1,
@@ -7,7 +12,8 @@ app.controller('QueryBuilderCtrl', ['$scope', 'queryService', function($scope, q
 			options: [
 				{ name: 'wow', id: 1, value: 7 },
 				{ name: 'yes', id: 2, value: 8 }
-			]
+			],
+			dataTemplate: 'test'
 		},
 		{ name: 'Lastname', id: 2 },
 		{

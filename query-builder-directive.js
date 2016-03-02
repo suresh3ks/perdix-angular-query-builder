@@ -22,8 +22,9 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 													'<select ng-change="changeField($index)" ng-options="t.name for t in fields" ng-model="rule.field" class="form-control"></select>' +
 													'<select ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in comparators" ng-model="rule.comparator" class="form-control"></select>' +
 													'<input ng-if="!rule.field.options || rule.field.options.length === 0"type="text" ng-model="rule.data" class="form-control"/>' +
-													'<select ng-if="rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'<select ng-if="rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<div ng-if="!!rule.field.dataTemplate" ng-include="rule.field.dataTemplate"></div>' +
+													'<select ng-if="!rule.field.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<select ng-if="!rule.field.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
 													'<button ng-click="removeCondition($index)" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span></button>' +
 											'</div>' +
 									 '</div>' +
