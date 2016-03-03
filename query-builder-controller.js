@@ -1,7 +1,7 @@
 ﻿var app = angular.module('app', ['ngSanitize', 'queryBuilder']);
 app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', function($scope, $templateCache, queryService) {
 	$templateCache.put('test',
-		'<div ng-dropdown-multiselect options="example1data" selected-model="example1model"></div>'
+		'<div ng-dropdown-multiselect options="%example1data%" selected-model="%example1model%"></div>'
 	);
 
 	$scope.fields = [

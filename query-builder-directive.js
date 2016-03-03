@@ -454,15 +454,18 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 			$templateRequest(templatePath)
 				.then(function(response) {
 					var responseToFillScope = response + '';
-					while (response.indexOf('"') !== -1) {
+					while (response.indexOf('%') !== -1) {
 						var key;
-						response = response.slice(response.indexOf('"') + 1);
-						key = response.substring(0, (response.indexOf('"')));
-						response = response.slice(response.indexOf('"') + 1);
+						response = response.slice(response.indexOf('%') + 1);
+						key = response.substring(0, (response.indexOf('%')));
+						response = response.slice(response.indexOf('%') + 1);
 						scope[key] = JSON.parse(JSON.stringify(parentScope[key]));
 						if (key === dataField) {
 							scope.$parent.$parent.$parent.rule.data = scope[key];
 						}
+					}
+					while (responseToFillScope.indexOf('%') !== -1) {
+						responseToFillScope = responseToFillScope.replace('%', '');
 					}
 					var contents = element.html(responseToFillScope).contents();
 					$compile(contents)(scope);
