@@ -27,7 +27,6 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 													'<div ng-if="!!rule.field.dataTemplate && rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) !== -1" static-include="{{rule.field.dataTemplate}}" datafield="{{rule.field.dataField}}"></div>' +
 													'<select ng-if="(!rule.field.dataTemplate || rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) === -1) && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
 													'<select ng-if="(!rule.field.dataTemplate || rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) === -1) && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'</div>' +
 													'<button ng-click="removeCondition($index)" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span></button>' +
 											'</div>' +
 									 '</div>' +
@@ -50,7 +49,6 @@ queryBuilder.factory('queryService', [function() {
 	}
 
 	function getDataValue(data, options) {
-		console.log(options);
 		var value;
 		if (data.id) {
 			options.some(function(option) {
@@ -453,8 +451,6 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 		link: function(scope, element, attrs, ctrl, transclude) {
 			var templatePath = attrs.staticInclude;
 			var dataField = attrs.datafield;
-			console.log(attrs);
-			console.log(dataField);
 			$templateRequest(templatePath)
 				.then(function(response) {
 					var responseToFillScope = response + '';
@@ -465,10 +461,7 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 						response = response.slice(response.indexOf('"') + 1);
 						scope[key] = JSON.parse(JSON.stringify(parentScope[key]));
 						if (key === dataField) {
-							console.log('found dataField');
-							console.log(scope);
 							scope.$parent.$parent.$parent.rule.data = scope[key];
-							console.log(scope.$parent.$parent.$parent.rule);
 						}
 					}
 					var contents = element.html(responseToFillScope).contents();
