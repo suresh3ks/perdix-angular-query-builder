@@ -1,8 +1,7 @@
 ﻿var app = angular.module('app', ['ngSanitize', 'queryBuilder']);
 app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', function($scope, $templateCache, queryService) {
 	$templateCache.put('test',
-		'test <select ng-if="rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'<select ng-if="!rule.field.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>'
+		'<div ng-dropdown-multiselect options="example1data" selected-model="example1model"></div>'
 	);
 
 	$scope.fields = [
@@ -10,10 +9,12 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 			id: 1,
 			name: 'IsAwsome',
 			options: [
-				{ name: 'wow', id: 1, value: 7 },
-				{ name: 'yes', id: 2, value: 8 }
+				{ name: 'wow', id: 1, value: 7, label: 'wow' },
+				{ name: 'yes', id: 2, value: 8, label: 'yes' }
 			],
-			dataTemplate: 'test'
+			dataTemplate: 'test',
+			dataTemplateEnabledForComparators: [7],
+			dataField: 'example1model'
 		},
 		{ name: 'Lastname', id: 2 },
 		{
@@ -35,6 +36,8 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		},
 		{ name: 'FirstName', id: 6 }
 	];
+
+	$scope.example1model = []; $scope.example1data = $scope.fields[0].options;
 
 	$scope.comparators = [
 		{ id: 1, name: 'equal to', value: '==' },

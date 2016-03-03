@@ -1,4 +1,6 @@
-var queryBuilder = angular.module('queryBuilder', []);
+var queryBuilder = angular.module('queryBuilder', ['angularjs-dropdown-multiselect']);
+var parentScope;
+String.prototype.splice = function(index, count, add) { return this.slice(0, index) + (add || "") + this.slice(index + count); }
 
 queryBuilder.run(['$templateCache', function($templateCache) {
 	$templateCache.put('/queryBuilderDirective.html',
@@ -22,9 +24,10 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 													'<select ng-change="changeField($index)" ng-options="t.name for t in fields" ng-model="rule.field" class="form-control"></select>' +
 													'<select ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in comparators" ng-model="rule.comparator" class="form-control"></select>' +
 													'<input ng-if="!rule.field.options || rule.field.options.length === 0"type="text" ng-model="rule.data" class="form-control"/>' +
-													'<div ng-if="!!rule.field.dataTemplate" ng-include="rule.field.dataTemplate"></div>' +
-													'<select ng-if="!rule.field.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'<select ng-if="!rule.field.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<div ng-if="!!rule.field.dataTemplate && rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) !== -1" static-include="{{rule.field.dataTemplate}}" datafield="{{rule.field.dataField}}"></div>' +
+													'<select ng-if="(!rule.field.dataTemplate || rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) === -1) && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<select ng-if="(!rule.field.dataTemplate || rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) === -1) && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'</div>' +
 													'<button ng-click="removeCondition($index)" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span></button>' +
 											'</div>' +
 									 '</div>' +
@@ -39,12 +42,27 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 }]);
 
 queryBuilder.factory('queryService', [function() {
-	String.prototype.splice = function(index, count, add) { return this.slice(0, index) + (add || "") + this.slice(index + count); }
 
 	return {
 		asString: asString,
 		asReadable: asReadable,
 		parseFromString: parseFromString,
+	}
+
+	function getDataValue(data, options) {
+		console.log(options);
+		var value;
+		if (data.id) {
+			options.some(function(option) {
+				if (option.id === data.id) {
+					value = option.value || option.id;
+					return true;
+				}
+			})
+		} else {
+			value = data.value;
+		}
+		return value;
 	}
 
 	function asString(group) {
@@ -54,20 +72,18 @@ queryBuilder.factory('queryService', [function() {
 			var dataString = '';
 			if (!!group.rules[i].field && !!group.rules[i].field.options &&
 				group.rules[i].field.options.length > 0) {
-				if (group.rules[i].comparator.value !== '->') {
-					dataString = group.rules[i].data.value;
+				var isFirst = true;
+				if (!!group.rules[i].data && Array.isArray(group.rules[i].data)) {
+					group.rules[i].data.forEach(function(data) {
+						if (!isFirst) {
+							dataString += ',' + getDataValue(data, group.rules[i].field.options);
+						} else {
+							isFirst = false;
+							dataString += getDataValue(data, group.rules[i].field.options);
+						}
+					});
 				} else {
-					var isFirst = true;
-					if (!!group.rules[i].data) {
-						group.rules[i].data.forEach(function(data) {
-							if (!isFirst) {
-								dataString += ',' + data.value;
-							} else {
-								isFirst = false;
-								dataString += data.value;
-							}
-						});
-					}
+					dataString = getDataValue(group.rules[i].data, group.rules[i].field.options);
 				}
 			} else {
 				dataString = group.rules[i].data;
@@ -80,6 +96,21 @@ queryBuilder.factory('queryService', [function() {
 		return str + ")";
 	}
 
+	function getDataName(data, options) {
+		var name;
+		if (data.id) {
+			options.some(function(option) {
+				if (option.id === data.id) {
+					name = option.name;
+					return true;
+				}
+			})
+		} else {
+			name = data.name;
+		}
+		return name;
+	}
+
 	function asReadable(group) {
 		if (!group) return "";
 		for (var str = "", i = 0; i < group.rules.length; i++) {
@@ -87,20 +118,18 @@ queryBuilder.factory('queryService', [function() {
 			var dataString = '';
 			if (!!group.rules[i].field && !!group.rules[i].field.options &&
 				group.rules[i].field.options.length > 0) {
-				if (group.rules[i].comparator.value !== '->') {
-					dataString = group.rules[i].data.name;
+				var isFirst = true;
+				if (!!group.rules[i].data && Array.isArray(group.rules[i].data)) {
+					group.rules[i].data.forEach(function(data) {
+						if (!isFirst) {
+							dataString += ',' + getDataName(data, group.rules[i].field.options);
+						} else {
+							isFirst = false;
+							dataString += getDataName(data, group.rules[i].field.options);
+						}
+					});
 				} else {
-					var isFirst = true;
-					if (!!group.rules[i].data) {
-						group.rules[i].data.forEach(function(data) {
-							if (!isFirst) {
-								dataString += ',' + data.name;
-							} else {
-								isFirst = false;
-								dataString += data.name;
-							}
-						});
-					}
+					dataString = group.rules[i].data.name;
 				}
 			} else {
 				dataString = group.rules[i].data;
@@ -302,6 +331,9 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			var content, directive;
 			content = element.contents().remove();
 			return function(scope, element, attrs) {
+				if (!parentScope) {
+					parentScope = scope.$parent;
+				}
 				scope.classes = {};
 				scope.nesting = true;
 				scope.separateLinesWithComparator = false;
@@ -410,4 +442,38 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			}
 		}
 	}
+}]);
+
+queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', function($templateRequest, $compile) {
+	return {
+		restrict: 'A',
+		transclude: false,
+		replace: false,
+		scope: {},
+		link: function(scope, element, attrs, ctrl, transclude) {
+			var templatePath = attrs.staticInclude;
+			var dataField = attrs.datafield;
+			console.log(attrs);
+			console.log(dataField);
+			$templateRequest(templatePath)
+				.then(function(response) {
+					var responseToFillScope = response + '';
+					while (response.indexOf('"') !== -1) {
+						var key;
+						response = response.slice(response.indexOf('"') + 1);
+						key = response.substring(0, (response.indexOf('"')));
+						response = response.slice(response.indexOf('"') + 1);
+						scope[key] = JSON.parse(JSON.stringify(parentScope[key]));
+						if (key === dataField) {
+							console.log('found dataField');
+							console.log(scope);
+							scope.$parent.$parent.$parent.rule.data = scope[key];
+							console.log(scope.$parent.$parent.$parent.rule);
+						}
+					}
+					var contents = element.html(responseToFillScope).contents();
+					$compile(contents)(scope);
+				});
+		}
+	};
 }]);
