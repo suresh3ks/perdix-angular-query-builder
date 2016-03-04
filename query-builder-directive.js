@@ -9,8 +9,8 @@ queryBuilder.run(['$templateCache', function($templateCache) {
         '<div class="form-inline">' +
             '<select ng-if="queryBuilder.operators.length > 1" ng-options="o.name for o in queryBuilder.operators" ng-model="queryBuilder.group.operator" class="form-control"></select>' +
             '<button ng-click="queryBuilder.addCondition()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Condition</button>' +
-            '<button ng-if="nesting" ng-click="addGroup()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Group</button>' +
-            '<button ng-if="nesting" ng-if="$parent.group" ng-click="removeGroup()" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span> Remove Group</button>' +
+            '<button ng-if="queryBuilder.nesting" ng-click="queryBuilder.addGroup()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Group</button>' +
+            '<button ng-if="queryBuilder.nesting && !!$parent.queryBuilder.group" ng-click="queryBuilder.removeGroup()" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span> Remove Group</button>' +
         '</div>' +
         '<div class="group-conditions">' +
             '<div ng-repeat="rule in queryBuilder.group.rules | orderBy:\'index\'" class="condition">' +
@@ -26,7 +26,7 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 													'<div ng-if="!!rule.comparator.dataTemplate" static-include="{{rule.comparator.dataTemplate}}"></div>' +
 													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
 													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'<button ng-click="removeCondition($index)" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span></button>' +
+													'<button ng-click="queryBuilder.removeCondition($index)" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span></button>' +
 											'</div>' +
 									 '</div>' +
 								'</div>' +
@@ -330,7 +330,6 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			vm.classes = {};
 			vm.nesting = true;
 			vm.separateLinesWithComparator = false;
-			console.log('vm', vm);
 
 			vm.addCondition = function() {
 				vm.group.rules.push({
@@ -354,7 +353,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			};
 
 			vm.removeGroup = function() {
-				"group" in vm.$parent && vm.$parent.group.rules.splice(vm.$parent.$index, 1);
+				"group" in scope.$parent.queryBuilder && scope.$parent.queryBuilder.group.rules.splice(scope.$parent.$index, 1);
 			};
 
 			vm.changeField = function(ruleId) {
@@ -380,12 +379,10 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 				} else {
 					vm.group.rules[ruleId].data = '';
 				}
-				console.log(vm.group.rules[ruleId].data);
 			}
 
 			//2 watches: 1 for input as object, one for input as string when one of them is resolved remove the watches
 			var stringWatcher = scope.$watch(function() {return vm.asString}, function(newValue) {
-				console.log('as string', newValue);
 				if (!!newValue && newValue.length > 0) {
 					stringWatcher();
 					objectWatcher();
