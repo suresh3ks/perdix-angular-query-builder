@@ -30,7 +30,7 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 											'</div>' +
 									 '</div>' +
 								'</div>' +
-								'<div ng-if="separateLinesWithOperator && !$last">' +
+								'<div ng-if="queryBuilder.separateLinesWithOperator && !$last">' +
 									'{{queryBuilder.group.operator.name}}' +
 								'</div>' +
 						'</div>' +
