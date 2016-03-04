@@ -1,5 +1,4 @@
 var queryBuilder = angular.module('queryBuilder', ['angularjs-dropdown-multiselect']);
-var parentScope;
 String.prototype.splice = function(index, count, add) { return this.slice(0, index) + (add || "") + this.slice(index + count); }
 
 queryBuilder.run(['$templateCache', function($templateCache) {
@@ -8,31 +7,31 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 			'<div ng-if="!!title" ng-class="classes.panels.heading">{{title}}</div>' +
 			'<div ng-class="classes.panels.body">' +
         '<div class="form-inline">' +
-            '<select ng-if="operators.length > 1" ng-options="o.name for o in operators" ng-model="group.operator" class="form-control"></select>' +
-            '<button ng-click="addCondition()" ng-class="classes.addButton"><span ng-class="classes.addIcon"></span> Add Condition</button>' +
-            '<button ng-if="nesting" ng-click="addGroup()" ng-class="classes.addButton"><span ng-class="classes.addIcon"></span> Add Group</button>' +
+            '<select ng-if="queryBuilder.operators.length > 1" ng-options="o.name for o in queryBuilder.operators" ng-model="queryBuilder.group.operator" class="form-control"></select>' +
+            '<button ng-click="queryBuilder.addCondition()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Condition</button>' +
+            '<button ng-if="nesting" ng-click="addGroup()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Group</button>' +
             '<button ng-if="nesting" ng-if="$parent.group" ng-click="removeGroup()" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span> Remove Group</button>' +
         '</div>' +
         '<div class="group-conditions">' +
-            '<div ng-repeat="rule in group.rules | orderBy:\'index\'" class="condition">' +
+            '<div ng-repeat="rule in queryBuilder.group.rules | orderBy:\'index\'" class="condition">' +
                 '<div ng-switch="rule.hasOwnProperty(\'group\')">' +
                     '<div ng-switch-when="true">' +
-                        '<query-builder fields="fields" comparators="comparators" operators="operators" group="rule.group"></query-builder>' +
+                        '<query-builder fields="queryBuilder.fields" comparators="queryBuilder.comparators" operators="queryBuilder.operators" group="rule.group"></query-builder>' +
                     '</div>' +
                     '<div ng-switch-default="ng-switch-default">' +
 											'<div class="form-inline">' +
-													'<select ng-change="changeField($index)" ng-options="t.name for t in fields" ng-model="rule.field" class="form-control"></select>' +
-													'<select ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in comparators" ng-model="rule.comparator" class="form-control"></select>' +
+													'<select ng-change="queryBuilder.changeField($index)" ng-options="t.name for t in queryBuilder.fields" ng-model="rule.field" class="form-control"></select>' +
+													'<select ng-change="queryBuilder.changeComparator($index)" ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in queryBuilder.comparators" ng-model="rule.comparator" class="form-control"></select>' +
 													'<input ng-if="!rule.field.options || rule.field.options.length === 0"type="text" ng-model="rule.data" class="form-control"/>' +
-													'<div ng-if="!!rule.field.dataTemplate && rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) !== -1" static-include="{{rule.field.dataTemplate}}" datafield="{{rule.field.dataField}}"></div>' +
-													'<select ng-if="(!rule.field.dataTemplate || rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) === -1) && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'<select ng-if="(!rule.field.dataTemplate || rule.field.dataTemplateEnabledForComparators.indexOf(rule.comparator.id) === -1) && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'<button ng-click="removeCondition($index)" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span></button>' +
+													'<div ng-if="!!rule.comparator.dataTemplate" static-include="{{rule.comparator.dataTemplate}}"></div>' +
+													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<button ng-click="removeCondition($index)" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span></button>' +
 											'</div>' +
 									 '</div>' +
 								'</div>' +
 								'<div ng-if="separateLinesWithOperator && !$last">' +
-									'{{group.operator.name}}' +
+									'{{queryBuilder.group.operator.name}}' +
 								'</div>' +
 						'</div>' +
 				'</div>' +
@@ -263,9 +262,9 @@ queryBuilder.factory('queryService', [function() {
 
 			if (!!rule.field.options && rule.field.options.length > 0) {
 				var dataString = spec.substring(String(rule.field.id).length + String(rule.comparator.value).length + 1, spec.length - 1);
-				if (rule.comparator.value !== '->') {
+				if (dataString.indexOf(',') === -1) {
 					rule.field.options.forEach(function(option) {
-						var optionIdAsString = String(option.value);
+						var optionIdAsString = String(option.id);
 						if (dataString.indexOf(optionIdAsString) !== -1 && optionIdAsString.length === dataString.length) {
 							rule.data = option;
 						}
@@ -274,7 +273,7 @@ queryBuilder.factory('queryService', [function() {
 					rule.data = [];
 					var optionIds = dataString.split(',');
 					rule.field.options.forEach(function(option) {
-						var optionIdAsString = String(option.value);
+						var optionIdAsString = String(option.id);
 						if (optionIds.indexOf(optionIdAsString) !== -1) {
 							rule.data.push(option);
 						}
@@ -324,119 +323,135 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			settings: '=',
 			title: '@title'
 		},
-		templateUrl: '/queryBuilderDirective.html',
-		compile: function(element, attrs) {
-			var content, directive;
-			content = element.contents().remove();
-			return function(scope, element, attrs) {
-				if (!parentScope) {
-					parentScope = scope.$parent;
-				}
-				scope.classes = {};
-				scope.nesting = true;
-				scope.separateLinesWithComparator = false;
+		controllerAs: 'queryBuilder',
+		bindToController: true,
+		controller: ['$scope', 'queryService', function(scope, queryService) {
+			var vm = this;
+			vm.classes = {};
+			vm.nesting = true;
+			vm.separateLinesWithComparator = false;
+			console.log('vm', vm);
 
-				scope.addCondition = function() {
-					scope.group.rules.push({
-						comparator: scope.comparators[0],
-						field: scope.fields[0],
-						data: ''
-					});
-				};
+			vm.addCondition = function() {
+				vm.group.rules.push({
+					comparator: vm.comparators[0],
+					field: vm.fields[0],
+					data: ''
+				});
+			};
 
-				scope.removeCondition = function(index) {
-					scope.group.rules.splice(index, 1);
-				};
+			vm.removeCondition = function(index) {
+				vm.group.rules.splice(index, 1);
+			};
 
-				scope.addGroup = function() {
-					scope.group.rules.push({
-						group: {
-							operator: scope.operators[0],
-							rules: []
-						}
-					});
-				};
-
-				scope.removeGroup = function() {
-					"group" in scope.$parent && scope.$parent.group.rules.splice(scope.$parent.$index, 1);
-				};
-
-				scope.changeField = function(ruleId) {
-					if (!!scope.group.rules[ruleId].field.disabledComparators) {
-						if (scope.group.rules[ruleId].field.disabledComparators.indexOf(scope.group.rules[ruleId].comparator.id) !== -1) {
-							scope.comparators.some(function(comparator) {
-								if (scope.group.rules[ruleId].field.disabledComparators.indexOf(comparator.id)) {
-									scope.group.rules[ruleId].comparator = comparator;
-									return true;
-								}
-							});
-						}
-					}
-				};
-
-				directive || (directive = $compile(content));
-
-				element.append(directive(scope, function($compile) {
-					return $compile;
-				}));
-
-				//2 watches: 1 for input as object, one for input as string when one of them is resolved remove the watches
-				var stringWatcher = scope.$watch('asString', function(newValue) {
-					if (!!newValue && newValue.length > 0) {
-						stringWatcher();
-						objectWatcher();
-						newValue = String(newValue);
-						scope.group = queryService.parseFromString(newValue, scope.fields, scope.operators, scope.comparators);
+			vm.addGroup = function() {
+				vm.group.rules.push({
+					group: {
+						operator: vm.operators[0],
+						rules: []
 					}
 				});
+			};
 
-				var objectWatcher = scope.$watch('group', function(newValue) {
-					if (!!newValue) {
-						stringWatcher();
-						objectWatcher();
-					}
-				});
+			vm.removeGroup = function() {
+				"group" in vm.$parent && vm.$parent.group.rules.splice(vm.$parent.$index, 1);
+			};
 
-				var settingsWatcher = scope.$watch(function() { return scope.settings; },
-					function() {
-						if (scope.settings && Object.keys(scope.settings).indexOf('nesting') !== -1) {
-							scope.nesting = scope.settings.nesting;
-						}
-
-						if (scope.settings && Object.keys(scope.settings).indexOf('addIconClass') !== -1) {
-							scope.classes.addIcon = scope.settings.addIconClass;
-						}
-						if (scope.settings && Object.keys(scope.settings).indexOf('removeIconClass') !== -1) {
-							scope.classes.removeIcon = scope.settings.removeIconClass;
-						}
-
-						if (scope.settings && Object.keys(scope.settings).indexOf('addButtonClass') !== -1) {
-							scope.classes.addButton = scope.settings.addButtonClass;
-						}
-						if (scope.settings && Object.keys(scope.settings).indexOf('removeButtonClass') !== -1) {
-							scope.classes.removeButton = scope.settings.removeButtonClass;
-						}
-
-						if (scope.settings && Object.keys(scope.settings).indexOf('separateLinesWithOperator') !== -1) {
-							scope.separateLinesWithOperator = scope.settings.separateLinesWithOperator;
-						}
-
-						if (scope.settings && Object.keys(scope.settings).indexOf('bootstrapPanelsEnabled') !== -1) {
-							if (scope.settings.panelsEnabled) {
-								scope.classes.panels = {
-									wrapper: 'panel panel-default',
-									body: 'panel-body',
-									heading: 'panel-heading'
-								}
+			vm.changeField = function(ruleId) {
+				if (!!vm.group.rules[ruleId].field.disabledComparators) {
+					if (vm.group.rules[ruleId].field.disabledComparators.indexOf(vm.group.rules[ruleId].comparator.id) !== -1) {
+						vm.comparators.some(function(comparator) {
+							if (vm.group.rules[ruleId].field.disabledComparators.indexOf(comparator.id)) {
+								vm.group.rules[ruleId].comparator = comparator;
+								vm.changeComparator(ruleId);
+								return true;
 							}
-						} else {
-							scope.classes.panels = {
+						});
+					}
+				}
+			};
+
+			vm.changeComparator = function(ruleId) {
+				if (!!vm.group.rules[ruleId].comparator.defaultData) {
+					if (typeof vm.group.rules[ruleId].data !== typeof vm.group.rules[ruleId].comparator.defaultData ||
+						Array.isArray(vm.group.rules[ruleId].data) !== Array.isArray(vm.group.rules[ruleId].comparator.defaultData)) {
+						vm.group.rules[ruleId].data = JSON.parse(JSON.stringify(vm.group.rules[ruleId].comparator.defaultData));
+					}
+				} else {
+					vm.group.rules[ruleId].data = '';
+				}
+				console.log(vm.group.rules[ruleId].data);
+			}
+
+			//2 watches: 1 for input as object, one for input as string when one of them is resolved remove the watches
+			var stringWatcher = scope.$watch(function() {return vm.asString}, function(newValue) {
+				console.log('as string', newValue);
+				if (!!newValue && newValue.length > 0) {
+					stringWatcher();
+					objectWatcher();
+					newValue = String(newValue);
+					vm.group = queryService.parseFromString(newValue, vm.fields, vm.operators, vm.comparators);
+				}
+			});
+
+			var objectWatcher = scope.$watch(function() {return vm.group}, function(newValue) {
+				if (!!newValue) {
+					stringWatcher();
+					objectWatcher();
+				}
+			});
+
+			var settingsWatcher = scope.$watch(function() { return scope.settings; },
+				function() {
+					if (vm.settings && Object.keys(vm.settings).indexOf('nesting') !== -1) {
+						vm.nesting = vm.settings.nesting;
+					}
+
+					if (vm.settings && Object.keys(vm.settings).indexOf('addIconClass') !== -1) {
+						vm.classes.addIcon = vm.settings.addIconClass;
+					}
+					if (vm.settings && Object.keys(vm.settings).indexOf('removeIconClass') !== -1) {
+						vm.classes.removeIcon = vm.settings.removeIconClass;
+					}
+
+					if (vm.settings && Object.keys(vm.settings).indexOf('addButtonClass') !== -1) {
+						vm.classes.addButton = vm.settings.addButtonClass;
+					}
+					if (vm.settings && Object.keys(vm.settings).indexOf('removeButtonClass') !== -1) {
+						vm.classes.removeButton = vm.settings.removeButtonClass;
+					}
+
+					if (vm.settings && Object.keys(vm.settings).indexOf('separateLinesWithOperator') !== -1) {
+						vm.separateLinesWithOperator = vm.settings.separateLinesWithOperator;
+					}
+
+					if (vm.settings && Object.keys(vm.settings).indexOf('bootstrapPanelsEnabled') !== -1) {
+						if (vm.settings.panelsEnabled) {
+							vm.classes.panels = {
 								wrapper: 'panel panel-default',
 								body: 'panel-body',
 								heading: 'panel-heading'
 							}
 						}
-					});
+					} else {
+						vm.classes.panels = {
+							wrapper: 'panel panel-default',
+							body: 'panel-body',
+							heading: 'panel-heading'
+						}
+					}
+				});
+		}],
+		templateUrl: '/queryBuilderDirective.html',
+		compile: function(element, attrs) {
+			var content, directive;
+			content = element.contents().remove();
+			return function(scope, element, attrs) {
+				directive || (directive = $compile(content));
+
+				element.append(directive(scope, function($compile) {
+					return $compile;
+				}));
 			}
 		}
 	}
@@ -447,27 +462,11 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 		restrict: 'A',
 		transclude: false,
 		replace: false,
-		scope: {},
 		link: function(scope, element, attrs, ctrl, transclude) {
 			var templatePath = attrs.staticInclude;
-			var dataField = attrs.datafield;
 			$templateRequest(templatePath)
 				.then(function(response) {
-					var responseToFillScope = response + '';
-					while (response.indexOf('%') !== -1) {
-						var key;
-						response = response.slice(response.indexOf('%') + 1);
-						key = response.substring(0, (response.indexOf('%')));
-						response = response.slice(response.indexOf('%') + 1);
-						scope[key] = JSON.parse(JSON.stringify(parentScope[key]));
-						if (key === dataField) {
-							scope.$parent.$parent.$parent.rule.data = scope[key];
-						}
-					}
-					while (responseToFillScope.indexOf('%') !== -1) {
-						responseToFillScope = responseToFillScope.replace('%', '');
-					}
-					var contents = element.html(responseToFillScope).contents();
+					var contents = element.html(response).contents();
 					$compile(contents)(scope);
 				});
 		}

@@ -1,7 +1,7 @@
 ﻿var app = angular.module('app', ['ngSanitize', 'queryBuilder']);
 app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', function($scope, $templateCache, queryService) {
 	$templateCache.put('test',
-		'<div ng-dropdown-multiselect options="%example1data%" selected-model="%example1model%"></div>'
+		'<div ng-dropdown-multiselect options="rule.field.options" selected-model="rule.data"></div>'
 	);
 
 	$scope.fields = [
@@ -9,12 +9,9 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 			id: 1,
 			name: 'IsAwsome',
 			options: [
-				{ name: 'wow', id: 1, value: 7, label: 'wow' },
-				{ name: 'yes', id: 2, value: 8, label: 'yes' }
-			],
-			dataTemplate: 'test',
-			dataTemplateEnabledForComparators: [7],
-			dataField: 'example1model'
+				{ name: 'wow', id: 1, label: 'wow' },
+				{ name: 'yes', id: 2, label: 'yes' }
+			]
 		},
 		{ name: 'Lastname', id: 2 },
 		{
@@ -26,9 +23,9 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		{
 			name: 'City', id: 4,
 			options: [
-				{ name: 'paris', id: 1 },
-				{ name: 'london', id: 2 },
-				{ name: 'brussels', id: 3 }
+				{ label: 'paris', name: 'paris', id: 1 },
+				{ label: 'london', name: 'london', id: 2 },
+				{ label: 'brussels', name: 'brussels', id: 3 }
 			]
 		},
 		{
@@ -46,7 +43,7 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		{ id: 4, name: 'smaller than or equal to', value: '<=' },
 		{ id: 5, name: 'greater than', value: '>' },
 		{ id: 6, name: 'greater than or equal to', value: '>=' },
-		{ id: 7, name: 'in', value: '->' }
+		{ id: 7, name: 'in', value: '->', dataTemplate: 'test', defaultData: [] }
 	];
 
 	$scope.operators = [
@@ -92,7 +89,7 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		$scope.output2String = queryService.asString(newValue.group);
 	}, true);
 	//$scope.queryAsString = '1=="1"&&(2=="3"||5!="Belgium")&&4->"London,Paris"';
-	$scope.queryAsString = '(1=="7"&&(2=="Kempenaers"||5!="Belgium")&&4->"1,2")';
+	$scope.queryAsString = '(1=="1"&&(2=="Kempenaers"||5!="Belgium")&&4->"1,2")';
 	//$scope.queryAsString = '(1=="1")&&(2=="3")';
 	//$scope.queryAsString = '((1=="1")&&(2=="3"))'
 }]);
