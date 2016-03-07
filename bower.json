@@ -8,5 +8,11 @@
 	"description": "A angular directive to visually create queries",
 	"authors": [
 		"Pieter Kempenaers <pkempenaers@myforce.be>"
+	],
+	"ignore": [
+		"bower_components",
+		"css",
+		"fonts",
+		"vendor"
 	]
 }
