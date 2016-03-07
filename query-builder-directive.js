@@ -360,7 +360,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 				if (!!vm.group.rules[ruleId].field.disabledComparators) {
 					if (vm.group.rules[ruleId].field.disabledComparators.indexOf(vm.group.rules[ruleId].comparator.id) !== -1) {
 						vm.comparators.some(function(comparator) {
-							if (vm.group.rules[ruleId].field.disabledComparators.indexOf(comparator.id)) {
+							if (vm.group.rules[ruleId].field.disabledComparators.indexOf(comparator.id) === -1) {
 								vm.group.rules[ruleId].comparator = comparator;
 								vm.changeComparator(ruleId);
 								return true;
@@ -461,6 +461,19 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 		replace: false,
 		link: function(scope, element, attrs, ctrl, transclude) {
 			var templatePath = attrs.staticInclude;
+
+			scope.$watch(function() {
+				return attrs.staticInclude
+			}, function(newValue, oldValue) {
+				if (oldValue !== newValue) {
+					$templateRequest(newValue)
+					.then(function(response) {
+						var contents = element.html(response).contents();
+						$compile(contents)(scope);
+					});
+				}
+			});
+
 			$templateRequest(templatePath)
 				.then(function(response) {
 					var contents = element.html(response).contents();
