@@ -22,7 +22,7 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 											'<div class="form-inline">' +
 													'<select ng-change="queryBuilder.changeField($index)" ng-options="t.name for t in queryBuilder.fields" ng-model="rule.field" class="form-control"></select>' +
 													'<select ng-change="queryBuilder.changeComparator($index)" ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in queryBuilder.comparators" ng-model="rule.comparator" class="form-control"></select>' +
-													'<input ng-if="!rule.field.options || rule.field.options.length === 0"type="text" ng-model="rule.data" class="form-control"/>' +
+													'<input ng-if="(!rule.field.options || rule.field.options.length === 0) && !rule.comparator.dataTemplate"type="text" ng-model="rule.data" class="form-control"/>' +
 													'<div ng-if="!!rule.comparator.dataTemplate" static-include="{{rule.comparator.dataTemplate}}"></div>' +
 													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options track by o.id" class="form-control"></select>' +
 													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options  track by o.id" class="form-control"></select>' +
