@@ -3,6 +3,9 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 	$templateCache.put('test',
 		'<div ng-dropdown-multiselect options="rule.field.options" selected-model="rule.data"></div>'
 	);
+	$templateCache.put('singleTest', '<div ng-dropdown-multiselect options="' +
+		'rule.field.options" selected-model="rule.data" extra-settings="' +
+		'rule.comparator.multiselectSetting"></div>');
 
 	$scope.fields = [
 		{
@@ -43,7 +46,25 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		{ id: 4, name: 'smaller than or equal to', value: '<=' },
 		{ id: 5, name: 'greater than', value: '>' },
 		{ id: 6, name: 'greater than or equal to', value: '>=' },
-		{ id: 7, name: 'in', value: '->', dataTemplate: 'test', defaultData: [] }
+		{ id: 7, name: 'in', value: '->', dataTemplate: 'test', defaultData: [] },
+		{
+			id: 8,
+			name: 'equal to select',
+			value: '-<',
+			dataTemplate: 'singleTest',
+			defaultData: {},
+			multiselectSetting: {
+				enableSearch: true,
+				smartButtonMaxItems: 1,
+				smartButtonTextConverter: function(itemText) {
+					return itemText;
+				},
+				showCheckAll: false,
+				showUncheckAll: false,
+				selectionLimit: 1,
+				externalIdProp: ''
+			}
+		}
 	];
 
 	$scope.operators = [
@@ -89,7 +110,7 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		$scope.output2String = queryService.asString(newValue.group);
 	}, true);
 	//$scope.queryAsString = '1=="1"&&(2=="3"||5!="Belgium")&&4->"London,Paris"';
-	$scope.queryAsString = '(1=="1"&&(2=="Kempenaers"||5!="Belgium")&&4->"1,2")';
+	$scope.queryAsString = '(1=="1"&&(2=="Kempenaers"||5!="Belgium")&&4-<"1")';
 	//$scope.queryAsString = '(1=="1")&&(2=="3")';
 	//$scope.queryAsString = '((1=="1")&&(2=="3"))'
 }]);

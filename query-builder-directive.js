@@ -24,8 +24,8 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 													'<select ng-change="queryBuilder.changeComparator($index)" ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in queryBuilder.comparators" ng-model="rule.comparator" class="form-control"></select>' +
 													'<input ng-if="!rule.field.options || rule.field.options.length === 0"type="text" ng-model="rule.data" class="form-control"/>' +
 													'<div ng-if="!!rule.comparator.dataTemplate" static-include="{{rule.comparator.dataTemplate}}"></div>' +
-													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
-													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options" class="form-control"></select>' +
+													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options track by o.id" class="form-control"></select>' +
+													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options  track by o.id" class="form-control"></select>' +
 													'<button ng-click="queryBuilder.removeCondition($index)" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span></button>' +
 											'</div>' +
 									 '</div>' +
@@ -266,7 +266,11 @@ queryBuilder.factory('queryService', [function() {
 					rule.field.options.forEach(function(option) {
 						var optionIdAsString = String(option.id);
 						if (dataString.indexOf(optionIdAsString) !== -1 && optionIdAsString.length === dataString.length) {
-							rule.data = option;
+							if (Array.isArray(rule.comparator.defaultData)) {
+								rule.data = [JSON.parse(JSON.stringify(option))];
+							} else {
+								rule.data = JSON.parse(JSON.stringify(option));
+							}
 						}
 					});
 				} else {
@@ -275,7 +279,7 @@ queryBuilder.factory('queryService', [function() {
 					rule.field.options.forEach(function(option) {
 						var optionIdAsString = String(option.id);
 						if (optionIds.indexOf(optionIdAsString) !== -1) {
-							rule.data.push(option);
+							rule.data.push(JSON.parse(JSON.stringify(option)));
 						}
 					});
 				}
@@ -455,6 +459,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 }]);
 
 queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', function($templateRequest, $compile) {
+	var staticScope;
 	return {
 		restrict: 'A',
 		transclude: false,
@@ -468,8 +473,11 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 				if (oldValue !== newValue) {
 					$templateRequest(newValue)
 					.then(function(response) {
+						staticScope.$destroy();
+						element.empty();
+						staticScope = scope.$new();
 						var contents = element.html(response).contents();
-						$compile(contents)(scope);
+						$compile(contents)(staticScope);
 					});
 				}
 			});
@@ -477,7 +485,8 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 			$templateRequest(templatePath)
 				.then(function(response) {
 					var contents = element.html(response).contents();
-					$compile(contents)(scope);
+					staticScope = scope.$new();
+					$compile(contents)(staticScope);
 				});
 		}
 	};
