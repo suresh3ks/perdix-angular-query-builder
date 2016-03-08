@@ -44,7 +44,7 @@ queryBuilder.factory('queryService', [function() {
 	return {
 		asString: asString,
 		asReadable: asReadable,
-		parseFromString: parseFromString,
+		parseFromString: parseFromString
 	}
 
 	function getDataValue(data, options) {
@@ -325,7 +325,8 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			operators: '=',
 			asString: '=',
 			settings: '=',
-			title: '@title'
+			title: '@title',
+			watchForString: '='
 		},
 		controllerAs: 'queryBuilder',
 		bindToController: true,
@@ -388,17 +389,15 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			//2 watches: 1 for input as object, one for input as string when one of them is resolved remove the watches
 			var stringWatcher = scope.$watch(function() {return vm.asString}, function(newValue) {
 				if (!!newValue && newValue.length > 0) {
-					stringWatcher();
-					objectWatcher();
 					newValue = String(newValue);
 					vm.group = queryService.parseFromString(newValue, vm.fields, vm.operators, vm.comparators);
+					scope.watchForString = false;
 				}
 			});
 
 			var objectWatcher = scope.$watch(function() {return vm.group}, function(newValue) {
 				if (!!newValue) {
-					stringWatcher();
-					objectWatcher();
+					scope.watchForString = false;
 				}
 			});
 
@@ -453,6 +452,8 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 				element.append(directive(scope, function($compile) {
 					return $compile;
 				}));
+
+				scope.watchForString = true;
 			}
 		}
 	}
