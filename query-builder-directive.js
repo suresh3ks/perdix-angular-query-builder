@@ -185,6 +185,7 @@ queryBuilder.factory('queryService', [function() {
 			var groups = [];
 			var indexOfNextOperator;
 			var nextOperator;
+			var operatorOfThisSet;
 			var indexOfNextOpenBrace;
 			var openBraceCount;
 
@@ -203,6 +204,7 @@ queryBuilder.factory('queryService', [function() {
 				indexOfNextOpenBrace = spec.indexOf('(');
 				if ((indexOfNextOpenBrace !== -1 && indexOfNextOpenBrace > indexOfNextOperator) ||
 					indexOfNextOpenBrace === -1) {
+					operatorOfThisSet = nextOperator;
 					if (indexOfNextOperator !== 0) {
 						groups.push(spec.substring(0, indexOfNextOperator));
 					}
@@ -234,7 +236,7 @@ queryBuilder.factory('queryService', [function() {
 				}
 			}
 
-			return { groups: groups, operator: nextOperator };
+			return { groups: groups, operator: operatorOfThisSet };
 		}
 
 		function convertToRule(spec, comparators, fields) {
