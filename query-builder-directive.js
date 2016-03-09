@@ -3,20 +3,20 @@ String.prototype.splice = function(index, count, add) { return this.slice(0, ind
 
 queryBuilder.run(['$templateCache', function($templateCache) {
 	$templateCache.put('/queryBuilderDirective.html',
-		'<div ng-class="classes.panels.wrapper">' +
-			'<div ng-if="!!title" ng-class="classes.panels.heading">{{title}}</div>' +
-			'<div ng-class="classes.panels.body">' +
+		'<div ng-class="queryBuilder.classes.panels.wrapper">' +
+			'<div ng-if="!!queryBuilder.title" ng-class="queryBuilder.classes.panels.heading">{{queryBuilder.title}}</div>' +
+			'<div ng-class="queryBuilder.classes.panels.body">' +
         '<div class="form-inline">' +
             '<select ng-if="queryBuilder.operators.length > 1" ng-options="o.name for o in queryBuilder.operators" ng-model="queryBuilder.group.operator" class="form-control"></select>' +
             '<button ng-click="queryBuilder.addCondition()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Condition</button>' +
             '<button ng-if="queryBuilder.nesting" ng-click="queryBuilder.addGroup()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Group</button>' +
-            '<button ng-if="queryBuilder.nesting && !!$parent.queryBuilder.group" ng-click="queryBuilder.removeGroup()" ng-class="classes.removeButton"><span ng-class="classes.removeIcon"></span> Remove Group</button>' +
+            '<button ng-if="queryBuilder.nesting && !!$parent.queryBuilder.group" ng-click="queryBuilder.removeGroup()" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span> Remove Group</button>' +
         '</div>' +
         '<div class="group-conditions">' +
             '<div ng-repeat="rule in queryBuilder.group.rules | orderBy:\'index\'" class="condition">' +
                 '<div ng-switch="rule.hasOwnProperty(\'group\')">' +
                     '<div ng-switch-when="true">' +
-                        '<query-builder fields="queryBuilder.fields" comparators="queryBuilder.comparators" operators="queryBuilder.operators" group="rule.group"></query-builder>' +
+                        '<query-builder fields="queryBuilder.fields" comparators="queryBuilder.comparators" operators="queryBuilder.operators" settings="queryBuilder.settings" group="rule.group"></query-builder>' +
                     '</div>' +
                     '<div ng-switch-default="ng-switch-default">' +
 											'<div class="form-inline">' +
