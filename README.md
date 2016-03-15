@@ -6,7 +6,6 @@ http://myforce.github.io/AngularQueryBuilder/
 
 ## Dependencies
 - required: AngularJS >= 1.4
-- required: Angular sanitize
 
 - Make sure to add the dependencies before the directive's js file. 
 
