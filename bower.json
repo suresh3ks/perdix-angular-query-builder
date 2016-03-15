@@ -1,10 +1,10 @@
 {
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"name": "angular-query-builder",
 	"main": "./query-builder-directive.js",
 	"dependencies": {
-		"angular": ">=1.4.0 <2.0.0",
-		"angular-sanitize": ">=1.4.0 <2.0.0"
+		"angular": "~1.4",
+		"angular-sanitize": "~1.4"
 	},
 	"description": "A angular directive to visually create queries",
 	"authors": [
