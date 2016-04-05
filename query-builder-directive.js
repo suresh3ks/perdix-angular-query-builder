@@ -20,7 +20,9 @@ queryBuilder.run(['$templateCache', function($templateCache) {
                     '</div>' +
                     '<div ng-switch-default="ng-switch-default">' +
 											'<div class="form-inline">' +
-													'<select ng-change="queryBuilder.changeField($index)" ng-options="t.name for t in queryBuilder.fields" ng-model="rule.field" class="form-control"></select>' +
+													'<select ng-change="queryBuilder.changeField($index, rule.fieldId, oldValue); oldValue=rule.fieldId;"  ng-init="oldValue=rule.field.id;" ng-model="rule.fieldId" class="form-control">' +
+													'<option ng-repeat="field in queryBuilder.fields" ng-disabled="field.used" value="{{field.id}}">{{field.name}}</option>'+
+													'</select>' +
 													'<select ng-change="queryBuilder.changeComparator($index)" ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in queryBuilder.comparators" ng-model="rule.comparator" class="form-control"></select>' +
 													'<input ng-if="(!rule.field.options || rule.field.options.length === 0) && !rule.comparator.dataTemplate"type="text" ng-model="rule.data" class="form-control"/>' +
 													'<div ng-if="!!rule.comparator.dataTemplate" static-include="{{rule.comparator.dataTemplate}}"></div>' +
@@ -242,6 +244,7 @@ queryBuilder.factory('queryService', [function() {
 		function convertToRule(spec, comparators, fields) {
 			var rule = {
 				field: {},
+				fieldId: '',
 				comparator: {},
 				data: ''
 			};
@@ -259,6 +262,7 @@ queryBuilder.factory('queryService', [function() {
 				var fieldIdAsString = String(field.id);
 				if (spec.indexOf(fieldIdAsString) === 0 && fieldIdAsString.length === indexOfComparator) {
 					rule.field = field;
+					rule.fieldId = field.id + '';
 				}
 			});
 
@@ -348,14 +352,39 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 					index++;
 				}
 
-				vm.group.rules.push({
-					comparator: comparator,
-					field: vm.fields[0],
-					data: ''
-				});
+				if (!vm.onlyAllowFieldsOnce) {
+					vm.group.rules.push({
+						comparator: comparator,
+						field: vm.fields[0],
+						fieldId: vm.fields[0].id + '',
+						data: ''
+					});
+				} else {
+					vm.fields.some(function(field) {
+						if (!field.used) {
+							field.used = true;
+							vm.group.rules.push({
+								comparator: comparator,
+								field: field,
+								fieldId: field.id + '',
+								data: ''
+							});
+							return true;
+						}
+					})
+				}
 			};
 
 			vm.removeCondition = function(index) {
+				var fieldId = parseInt(vm.group.rules[index].field.id, 10);
+				if (vm.onlyAllowFieldsOnce) {
+					vm.fields.some(function(field) {
+						if (field.id === fieldId) {
+							field.used = false;
+							return true;
+						}
+					});
+				}
 				vm.group.rules.splice(index, 1);
 			};
 
@@ -372,7 +401,30 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 				"group" in scope.$parent.queryBuilder && scope.$parent.queryBuilder.group.rules.splice(scope.$parent.$index, 1);
 			};
 
-			vm.changeField = function(ruleId) {
+			vm.changeField = function(ruleId, newFieldId, oldFieldId) {
+				newFieldId = parseInt(newFieldId, 10);
+				oldFieldId = parseInt(oldFieldId, 10);
+				vm.fields.some(function(field) {
+					if (field.id === newFieldId) {
+						vm.group.rules[ruleId].field = field;
+						return true;
+					}
+				});
+
+				if (vm.onlyAllowFieldsOnce) {
+					vm.fields.some(function(field) {
+						if (field.id === oldFieldId) {
+							field.used = false;
+							return true;
+						}
+					});
+					vm.fields.some(function(field) {
+						if (field.id === newFieldId) {
+							field.used = true;
+							return true;
+						}
+					});
+				}
 				if (!!vm.group.rules[ruleId].field.disabledComparators) {
 					if (vm.group.rules[ruleId].field.disabledComparators.indexOf(vm.group.rules[ruleId].comparator.id) !== -1) {
 						vm.comparators.some(function(comparator) {
@@ -450,6 +502,12 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 							body: 'panel-body',
 							heading: 'panel-heading'
 						}
+					}
+
+					if (vm.settings && Object.keys(vm.settings).indexOf('onlyAllowFieldsOnce') !== -1) {
+						vm.onlyAllowFieldsOnce = vm.settings.onlyAllowFieldsOnce;
+					} else {
+						vm.onlyAllowFieldsOnce = false;
 					}
 				});
 		}],
