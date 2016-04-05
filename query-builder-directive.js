@@ -357,7 +357,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 						comparator: comparator,
 						field: vm.fields[0],
 						fieldId: vm.fields[0].id + '',
-						data: ''
+						data: comparator.defaultData || ''
 					});
 				} else {
 					vm.fields.some(function(field) {
