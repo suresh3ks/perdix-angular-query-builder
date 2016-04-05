@@ -339,8 +339,17 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			vm.separateLinesWithComparator = false;
 
 			vm.addCondition = function() {
+				var comparator;
+				var index = 0;
+				while (!comparator && index < vm.comparators.length) {
+					if (!vm.fields[0].disabledComparators || vm.fields[0].disabledComparators.indexOf(vm.comparators[index].id) === -1) {
+						comparator = vm.comparators[index];
+					}
+					index++;
+				}
+
 				vm.group.rules.push({
-					comparator: vm.comparators[0],
+					comparator: comparator,
 					field: vm.fields[0],
 					data: ''
 				});

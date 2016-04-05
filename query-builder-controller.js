@@ -161,4 +161,57 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		$scope.output2Readable = queryService.asReadable(newValue.group);
 		$scope.output2String = queryService.asString(newValue.group);
 	}, true);
+
+	$scope.fields4 = [
+		{
+			id: 1,
+			name: 'Gender',
+			disabledComparators: [
+				1
+			]
+		},
+		{
+			id: 2,
+			name: 'Age'
+		},
+		{
+			name: 'Favorite city', id: 4
+		}
+	];
+
+	$scope.comparators4 = [
+		{ id: 1, name: 'equal to', value: '==' },
+		{ id: 2, name: 'not equal to', value: '!=' },
+		{ id: 3, name: 'smaller than', value: '<' },
+		{ id: 4, name: 'smaller than or equal to', value: '<=' },
+		{ id: 5, name: 'greater than', value: '>' },
+		{ id: 6, name: 'greater than or equal to', value: 'equal to or greater' }
+	];
+
+	$scope.operators4 = [
+		{ name: 'AND', value: '&&' },
+		{ name: 'OR', value: '||' }
+	];
+
+	$scope.json4 = null;
+
+	$scope.filter4 = {
+		group: {
+			operator: $scope.operators4[0], rules: []
+		}
+	};
+
+	$scope.settings4 = {
+		nesting: false,
+		addIconClass: 'glyphicon glyphicon-plus',
+		removeIconClass: 'glyphicon glyphicon-minus',
+		addButtonClass: 'btn btn-sm btn-success',
+		removeButtonClass: 'btn btn-sm btn-danger'
+	};
+
+	$scope.$watch('filter4', function(newValue) {
+		$scope.json4 = JSON.stringify(newValue, null, 2);
+		$scope.outputReadable4 = queryService.asReadable(newValue.group);
+		$scope.outputString4 = queryService.asString(newValue.group);
+	}, true);
 }]);
