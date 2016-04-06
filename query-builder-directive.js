@@ -339,28 +339,32 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			vm.separateLinesWithComparator = false;
 
 			vm.addCondition = function() {
+				var field;
 				var comparator;
+				var data;
 				var index = 0;
-				while (!comparator && index < vm.comparators.length) {
-					if (!vm.fields[0].disabledComparators || vm.fields[0].disabledComparators.indexOf(vm.comparators[index].id) === -1) {
+
+				field = vm.fields[0];
+
+				while (!comparator && index < vm.comparators.length && !!field) {
+					if (!field.disabledComparators ||
+						field.disabledComparators.indexOf(vm.comparators[index].id) === -1) {
 						comparator = vm.comparators[index];
 					}
 					index++;
 				}
 
 				if (!!comparator.defaultData) {
-					vm.group.rules.push({
-						comparator: comparator,
-						field: vm.fields[0],
-						data: JSON.parse(JSON.stringify(comparator.defaultData))
-					});
+					data = JSON.parse(JSON.stringify(comparator.defaultData));
 				} else {
-					vm.group.rules.push({
-						comparator: comparator,
-						field: vm.fields[0],
-						data: ''
-					});
+					data = '';
 				}
+
+				vm.group.rules.push({
+					comparator: comparator,
+					field: field,
+					data: data
+				});
 			};
 
 			vm.removeCondition = function(index) {
