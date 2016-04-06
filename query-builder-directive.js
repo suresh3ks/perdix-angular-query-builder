@@ -343,60 +343,51 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			vm.separateLinesWithComparator = false;
 
 			vm.addCondition = function() {
+				var field;
 				var comparator;
+				var data;
 				var index = 0;
+
+				if (!vm.onlyAllowFieldsOnce) {
+					field = vm.fields[0];
+				} else {
+					vm.fields.some(function(f) {
+						if (!f.used) {
+							f.used = true;
+							field = f;
+							return true;
+						}
+					});
+				}
+
+				if (!field) {
+					return;
+				}
+
 				while (!comparator && index < vm.comparators.length) {
-					if (!vm.fields[0].disabledComparators || vm.fields[0].disabledComparators.indexOf(vm.comparators[index].id) === -1) {
+					if (!field.disabledComparators ||
+						field.disabledComparators.indexOf(vm.comparators[index].id) === -1) {
 						comparator = vm.comparators[index];
 					}
 					index++;
 				}
 
-				if (!vm.onlyAllowFieldsOnce) {
-					if (!!comparator.defaultData) {
-						vm.group.rules.push({
-							comparator: comparator,
-							field: vm.fields[0],
-							data: JSON.parse(JSON.stringify(comparator.defaultData)),
-							fieldId: vm.fields[0].id + ''
-						});
-					} else {
-						vm.group.rules.push({
-							comparator: comparator,
-							field: vm.fields[0],
-							data: '',
-							fieldId: vm.fields[0].id + ''
-						});
-					}
-				} else {
-					if (!!comparator.defaultData) {
-						vm.fields.some(function(field) {
-							if (!field.used) {
-								field.used = true;
-								vm.group.rules.push({
-									comparator: comparator,
-									field: field,
-									fieldId: field.id + '',
-									data: JSON.parse(JSON.stringify(comparator.defaultData))
-								});
-								return true;
-							}
-						});
-					} else {
-						vm.fields.some(function(field) {
-							if (!field.used) {
-								field.used = true;
-								vm.group.rules.push({
-									comparator: comparator,
-									field: field,
-									fieldId: field.id + '',
-									data: ''
-								});
-								return true;
-							}
-						});
-					}
+				if (!comparator) {
+					return;
 				}
+
+				if (!!comparator.defaultData) {
+					data = JSON.parse(JSON.stringify(comparator.defaultData));
+				} else {
+					data = '';
+				}
+
+				vm.group.rules.push({
+					comparator: comparator,
+					field: field,
+					data: data,
+					fieldId: field.id + ''
+				});
 			};
 
 			vm.removeCondition = function(index) {
