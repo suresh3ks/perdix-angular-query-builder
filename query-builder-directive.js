@@ -348,11 +348,19 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 					index++;
 				}
 
-				vm.group.rules.push({
-					comparator: comparator,
-					field: vm.fields[0],
-					data: comparator.defaultData || ''
-				});
+				if (!!comparator.defaultData) {
+					vm.group.rules.push({
+						comparator: comparator,
+						field: vm.fields[0],
+						data: JSON.parse(JSON.stringify(comparator.defaultData))
+					});
+				} else {
+					vm.group.rules.push({
+						comparator: comparator,
+						field: vm.fields[0],
+						data: ''
+					});
+				}
 			};
 
 			vm.removeCondition = function(index) {
