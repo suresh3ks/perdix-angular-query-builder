@@ -353,25 +353,49 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 				}
 
 				if (!vm.onlyAllowFieldsOnce) {
-					vm.group.rules.push({
-						comparator: comparator,
-						field: vm.fields[0],
-						fieldId: vm.fields[0].id + '',
-						data: comparator.defaultData || ''
-					});
+					if (!!comparator.defaultData) {
+						vm.group.rules.push({
+							comparator: comparator,
+							field: vm.fields[0],
+							data: JSON.parse(JSON.stringify(comparator.defaultData)),
+							fieldId: vm.fields[0].id + ''
+						});
+					} else {
+						vm.group.rules.push({
+							comparator: comparator,
+							field: vm.fields[0],
+							data: '',
+							fieldId: vm.fields[0].id + ''
+						});
+					}
 				} else {
-					vm.fields.some(function(field) {
-						if (!field.used) {
-							field.used = true;
-							vm.group.rules.push({
-								comparator: comparator,
-								field: field,
-								fieldId: field.id + '',
-								data: comparator.defaultData || ''
-							});
-							return true;
-						}
-					})
+					if (!!comparator.defaultData) {
+						vm.fields.some(function(field) {
+							if (!field.used) {
+								field.used = true;
+								vm.group.rules.push({
+									comparator: comparator,
+									field: field,
+									fieldId: field.id + '',
+									data: JSON.parse(JSON.stringify(comparator.defaultData))
+								});
+								return true;
+							}
+						});
+					} else {
+						vm.fields.some(function(field) {
+							if (!field.used) {
+								field.used = true;
+								vm.group.rules.push({
+									comparator: comparator,
+									field: field,
+									fieldId: field.id + '',
+									data: ''
+								});
+								return true;
+							}
+						});
+					}
 				}
 			};
 
