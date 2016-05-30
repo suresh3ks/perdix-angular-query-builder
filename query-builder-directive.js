@@ -425,7 +425,12 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 						return true;
 					}
 				});
-
+				if (!!vm.group.rules[ruleId].comparator.defaultData) {
+					vm.group.rules[ruleId].data = JSON.parse(JSON.stringify(vm.group.rules[ruleId].comparator.defaultData));
+				} else {
+					vm.group.rules[ruleId].data = '';
+				}
+				
 				if (vm.onlyAllowFieldsOnce) {
 					vm.fields.some(function(field) {
 						if (field.id === oldFieldId) {
