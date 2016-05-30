@@ -385,6 +385,12 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			};
 
 			vm.changeField = function(ruleId) {
+				if (!!vm.group.rules[ruleId].comparator.defaultData) {
+					vm.group.rules[ruleId].data = JSON.parse(JSON.stringify(vm.group.rules[ruleId].comparator.defaultData));
+				} else {
+					vm.group.rules[ruleId].data = '';
+				}
+
 				if (!!vm.group.rules[ruleId].field.disabledComparators) {
 					if (vm.group.rules[ruleId].field.disabledComparators.indexOf(vm.group.rules[ruleId].comparator.id) !== -1) {
 						vm.comparators.some(function(comparator) {
