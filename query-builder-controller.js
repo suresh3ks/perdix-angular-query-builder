@@ -125,6 +125,14 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 				{ label: 'london', name: 'london', id: 2 },
 				{ label: 'brussels', name: 'brussels', id: 3 }
 			]
+		},
+		{
+			name: 'Favorite city 2', id: 2,
+			options: [
+				{ label: 'paris', name: 'paris', id: 1 },
+				{ label: 'london', name: 'london', id: 2 },
+				{ label: 'brussels', name: 'brussels', id: 3 }
+			]
 		}
 	];
 
