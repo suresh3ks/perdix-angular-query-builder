@@ -405,7 +405,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			};
 
 			vm.changeComparator = function(ruleId) {
-				if (!!vm.group.rules[ruleId].comparator.defaultData) {
+				if (!!vm.group.rules[ruleId].comparator && !!vm.group.rules[ruleId].comparator.defaultData) {
 					if (typeof vm.group.rules[ruleId].data !== typeof vm.group.rules[ruleId].comparator.defaultData ||
 						Array.isArray(vm.group.rules[ruleId].data) !== Array.isArray(vm.group.rules[ruleId].comparator.defaultData)) {
 						vm.group.rules[ruleId].data = JSON.parse(JSON.stringify(vm.group.rules[ruleId].comparator.defaultData));
