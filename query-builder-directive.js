@@ -7,7 +7,7 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 			'<div ng-if="!!queryBuilder.title" ng-class="queryBuilder.classes.panels.heading">{{queryBuilder.title}}</div>' +
 			'<div ng-class="queryBuilder.classes.panels.body">' +
         '<div class="form-inline">' +
-            '<select ng-if="queryBuilder.operators.length > 1" ng-options="o.name for o in queryBuilder.operators" ng-model="queryBuilder.group.operator" class="form-control"></select>' +
+            '<select ng-if="queryBuilder.operators.length > 1" ng-options="o.name for o in queryBuilder.operators" ng-model="queryBuilder.group.operator" class="form-control" ng-change="queryBuilder.changeOperator()"></select>' +
             '<button ng-click="queryBuilder.addCondition()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Condition</button>' +
             '<button ng-if="queryBuilder.nesting" ng-click="queryBuilder.addGroup()" ng-class="queryBuilder.classes.addButton"><span ng-class="queryBuilder.classes.addIcon"></span> Add Group</button>' +
             '<button ng-if="queryBuilder.nesting && !!$parent.queryBuilder.group" ng-click="queryBuilder.removeGroup()" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span> Remove Group</button>' +
@@ -16,7 +16,7 @@ queryBuilder.run(['$templateCache', function($templateCache) {
             '<div ng-repeat="rule in queryBuilder.group.rules | orderBy:\'index\'" class="condition">' +
                 '<div ng-switch="rule.hasOwnProperty(\'group\')">' +
                     '<div ng-switch-when="true">' +
-                        '<query-builder fields="queryBuilder.fields" comparators="queryBuilder.comparators" operators="queryBuilder.operators" settings="queryBuilder.settings" group="rule.group"></query-builder>' +
+                        '<query-builder fields="queryBuilder.fields" comparators="queryBuilder.comparators" operators="queryBuilder.operators" settings="queryBuilder.settings" group="rule.group" change="queryBuilder.change"></query-builder>' +
                     '</div>' +
                     '<div ng-switch-default="ng-switch-default">' +
 											'<div class="form-inline">' +
@@ -24,10 +24,10 @@ queryBuilder.run(['$templateCache', function($templateCache) {
 													'<option ng-repeat="field in queryBuilder.fields" ng-disabled="field.used" value="{{field.id}}">{{field.name}}</option>'+
 													'</select>' +
 													'<select ng-change="queryBuilder.changeComparator($index)" ng-options="c.name disable when !!rule.field.disabledComparators && rule.field.disabledComparators.indexOf(c.id) !== -1 for c in queryBuilder.comparators" ng-model="rule.comparator" class="form-control"></select>' +
-													'<input ng-if="(!rule.field.options || rule.field.options.length === 0) && !rule.comparator.dataTemplate"type="text" ng-model="rule.data" class="form-control"/>' +
-													'<div ng-if="!!rule.comparator.dataTemplate" static-include="{{rule.comparator.dataTemplate}}"></div>' +
-													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options track by o.id" class="form-control"></select>' +
-													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options  track by o.id" class="form-control"></select>' +
+													'<input ng-if="(!rule.field.options || rule.field.options.length === 0) && !rule.comparator.dataTemplate"type="text" ng-model="rule.data" class="form-control" ng-change="queryBuilder.changeData()"/>' +
+													'<div ng-if="!!rule.comparator.dataTemplate" static-include="{{rule.comparator.dataTemplate}}" change="queryBuilder.change()" data="rule.data"></div>' +
+													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value !== \'->\'" ng-model="rule.data" ng-options="o.name for o in rule.field.options track by o.id" class="form-control" ng-change="queryBuilder.changeData()"></select>' +
+													'<select ng-if="!rule.comparator.dataTemplate && rule.field.options.length > 0 && rule.comparator.value === \'->\'" multiple="true" ng-model="rule.data" ng-options="o.name for o in rule.field.options  track by o.id" class="form-control" ng-change="queryBuilder.changeData()"></select>' +
 													'<button ng-click="queryBuilder.removeCondition($index)" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span></button>' +
 											'</div>' +
 									 '</div>' +
@@ -332,7 +332,8 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			asString: '=',
 			settings: '=',
 			title: '@title',
-			watchForString: '='
+			watchForString: '=',
+			change: '=?'
 		},
 		controllerAs: 'queryBuilder',
 		bindToController: true,
@@ -341,6 +342,10 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			vm.classes = {};
 			vm.nesting = true;
 			vm.separateLinesWithComparator = false;
+
+			if (!vm.change) {
+				vm.change = angular.noop;
+			}
 
 			vm.addCondition = function() {
 				var field;
@@ -388,6 +393,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 					data: data,
 					fieldId: field.id + ''
 				});
+				vm.change();
 			};
 
 			vm.removeCondition = function(index) {
@@ -401,6 +407,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 					});
 				}
 				vm.group.rules.splice(index, 1);
+				vm.change()
 			};
 
 			vm.addGroup = function() {
@@ -410,10 +417,12 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 						rules: []
 					}
 				});
+				vm.change();
 			};
 
 			vm.removeGroup = function() {
 				"group" in scope.$parent.queryBuilder && scope.$parent.queryBuilder.group.rules.splice(scope.$parent.$index, 1);
+				vm.change();
 			};
 
 			vm.changeField = function(ruleId, newFieldId, oldFieldId) {
@@ -456,6 +465,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 						});
 					}
 				}
+				vm.change();
 			};
 
 			vm.changeComparator = function(ruleId) {
@@ -467,7 +477,16 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 				} else {
 					vm.group.rules[ruleId].data = '';
 				}
+				vm.change();
 			}
+
+			vm.changeData = function() {
+				vm.change();
+			};
+
+			vm.changeOperator = function() {
+				vm.change();
+			};
 
 			//2 watches: 1 for input as object, one for input as string when one of them is resolved remove the watches
 			var stringWatcher = scope.$watch(function() {return vm.asString}, function(newValue) {
