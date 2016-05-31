@@ -1,4 +1,4 @@
-﻿var app = angular.module('app', ['ngSanitize', 'queryBuilder', 'hljs', 'ui.bootstrap']);
+﻿var app = angular.module('app', ['ngSanitize', 'queryBuilder', 'hljs', 'ui.bootstrap', 'angularjs-dropdown-multiselect']);
 app.config(['hljsServiceProvider', function(hljsServiceProvider) {
 	hljsServiceProvider.setOptions({
 		// replace tab with 4 spaces
