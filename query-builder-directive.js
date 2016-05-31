@@ -1,4 +1,4 @@
-var queryBuilder = angular.module('queryBuilder', ['angularjs-dropdown-multiselect']);
+var queryBuilder = angular.module('queryBuilder', []);
 String.prototype.splice = function(index, count, add) { return this.slice(0, index) + (add || "") + this.slice(index + count); }
 
 queryBuilder.run(['$templateCache', function($templateCache) {
@@ -558,7 +558,7 @@ queryBuilder.directive('staticInclude', ['$templateRequest', '$compile', functio
 			var templatePath = attrs.staticInclude;
 
 			scope.$watch(function() {
-				return attrs.staticInclude
+				return attrs.staticInclude;
 			}, function(newValue, oldValue) {
 				if (oldValue !== newValue) {
 					$templateRequest(newValue)
