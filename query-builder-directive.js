@@ -426,7 +426,6 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 
 			var objectWatcher = scope.$watch(function() {return vm.group}, function(newValue) {
 				if (!!newValue) {
-					console.log(vm.group);
 					vm.operators.forEach(operator => {
 						if (operator.value === vm.group.operator.value) {
 							vm.group.operator = operator;
