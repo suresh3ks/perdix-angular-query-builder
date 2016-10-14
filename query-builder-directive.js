@@ -480,6 +480,21 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 
 			var objectWatcher = scope.$watch(function() {return vm.group}, function(newValue) {
 				if (!!newValue) {
+					console.log(vm.group);
+					vm.operators.forEach(operator => {
+						if (operator.value === vm.group.operator.value) {
+							vm.group.operator = operator;
+						}
+					});
+					vm.group.rules.forEach(rule => {
+						if (angular.isUndefined(rule.group)) {
+							vm.comparators.forEach(comparator => {
+								if (rule.comparator.id === comparator.id) {
+									rule.comparator = comparator;
+								}
+							});
+						}
+					});
 					scope.watchForString = false;
 				}
 			});
