@@ -314,7 +314,7 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 	];
 
 	$scope.settings6 = {
-		nesting: false,
+		nesting: true,
 		addIconClass: 'glyphicon glyphicon-plus',
 		removeIconClass: 'glyphicon glyphicon-minus',
 		addButtonClass: 'btn btn-sm btn-success',
@@ -323,7 +323,7 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 
 	$scope.filter6 = {
 		group: {
-			operator: $scope.operators3[0], rules: []
+			operator: $scope.operators6[0], rules: []
 		}
 	};
 	$scope.json6 = null;

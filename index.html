@@ -398,7 +398,7 @@
 					</td>
 					<td>function</td>
 					<td>no</td>
-					<td>Should return false when the data is invalid. When it returns false will set the class "invalid" to the condition and when at least 1 is invalid will set the same class to the root div.</td>
+					<td>Should return false when the data is invalid. When it returns false will set the class "invalid" to the condition and when at least 1 is invalid will set the class "query-invalid" to the root div.</td>
 				</tr>
 			</tbody>
 		</table>
@@ -488,6 +488,22 @@
 			</div>
 			<div class="panel-body">
 				Converts a string outputted by asString back to an object using the fields, operators and comparators passed to the function.
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				isValid(group)
+			</div>
+			<div class="panel-body">
+				Returns true when the group is valid
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				isInValid(group)
+			</div>
+			<div class="panel-body">
+				Returns true when the group is invalid
 			</div>
 		</div>
 	</div>

@@ -3,7 +3,7 @@ String.prototype.splice = function(index, count, add) { return this.slice(0, ind
 
 queryBuilder.run(['$templateCache', function($templateCache) {
 	$templateCache.put('/queryBuilderDirective.html',
-		'<div ng-class="[queryBuilder.classes.panels.wrapper, {\'invalid\': queryBuilder.isInValid()}]">' +
+		'<div ng-class="[queryBuilder.classes.panels.wrapper, {\'query-invalid\': queryBuilder.isInValid()}]">' +
 			'<div ng-if="!!queryBuilder.title" ng-class="queryBuilder.classes.panels.heading">{{queryBuilder.title}}</div>' +
 			'<div ng-class="queryBuilder.classes.panels.body">' +
         '<div class="form-inline">' +
@@ -13,7 +13,7 @@ queryBuilder.run(['$templateCache', function($templateCache) {
             '<button ng-if="queryBuilder.nesting && !!$parent.queryBuilder.group" ng-click="queryBuilder.removeGroup()" ng-class="queryBuilder.classes.removeButton"><span ng-class="queryBuilder.classes.removeIcon"></span> Remove Group</button>' +
         '</div>' +
         '<div class="group-conditions">' +
-            '<div ng-repeat="rule in queryBuilder.group.rules | orderBy:\'index\'" class="condition" ng-class="{\'invalid\': !rule.comparator || (!!rule.comparator.isValid && !rule.comparator.isValid(rule.data, rule.field))}">' +
+            '<div ng-repeat="rule in queryBuilder.group.rules | orderBy:\'index\'" class="condition" ng-class="{\'invalid\': (!rule.comparator && !rule.hasOwnProperty(\'group\')) || (!rule.hasOwnProperty(\'group\') && !!rule.comparator.isValid && !rule.comparator.isValid(rule.data, rule.field))}">' +
                 '<div ng-switch="rule.hasOwnProperty(\'group\')">' +
                     '<div ng-switch-when="true">' +
                         '<query-builder fields="queryBuilder.fields" comparators="queryBuilder.comparators" operators="queryBuilder.operators" settings="queryBuilder.settings" group="rule.group" change="queryBuilder.change"></query-builder>' +
@@ -46,7 +46,9 @@ queryBuilder.factory('queryService', [function() {
 	return {
 		asString: asString,
 		asReadable: asReadable,
-		parseFromString: parseFromString
+		parseFromString: parseFromString,
+		isInValid: isInValid,
+		isValid: isValid,
 	}
 
 	function getDataValue(data, options) {
@@ -319,6 +321,22 @@ queryBuilder.factory('queryService', [function() {
 
 		return group;
 	}
+
+	function isInValid(group) {
+		return !isValid(group);
+	}
+
+	function isValid(group) {
+		var groupIsValid = true;
+		group.rules.forEach(function(rule) {
+			if (!!rule.group) {
+				groupIsValid = groupIsValid && isValid(rule.group);
+			} else {
+				groupIsValid = groupIsValid && (!!rule.comparator && (!rule.comparator.isValid || rule.comparator.isValid(rule.data, rule.field)));
+			}
+		});
+		return groupIsValid;
+	}
 }]);
 
 queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($compile, queryService) {
@@ -489,9 +507,7 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 			};
 
 			vm.isInValid = function() {
-				return vm.group.rules.some(function(rule) {
-					return !rule.comparator || (!!rule.comparator.isValid && !rule.comparator.isValid(rule.data, rule.field));
-				});
+				return queryService.isInValid(vm.group);
 			};
 
 			var settingsWatcher = scope.$watch(function() { return scope.settings; },
