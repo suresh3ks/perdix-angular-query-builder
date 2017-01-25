@@ -141,7 +141,9 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 	);
 
 	$scope.comparators3 = [
-		{ id: 1, name: 'in', value: '->', dataTemplate: 'inTemplate', defaultData: [] },
+		{
+			id: 1, name: 'in', value: '->', dataTemplate: 'inTemplate', defaultData: [],
+		},
 		{ id: 2, name: 'equal to', value: '==' }
 	];
 
@@ -165,9 +167,9 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 	$scope.json3 = null;
 
 	$scope.$watch('filter3', function(newValue) {
-		$scope.json2 = JSON.stringify(newValue, null, 2);
-		$scope.output2Readable = queryService.asReadable(newValue.group);
-		$scope.output2String = queryService.asString(newValue.group);
+		$scope.json3 = JSON.stringify(newValue, null, 2);
+		$scope.output3Readable = queryService.asReadable(newValue.group);
+		$scope.output3String = queryService.asString(newValue.group);
 	}, true);
 
 	$scope.fields4 = [
@@ -272,5 +274,63 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		$scope.json5 = JSON.stringify(newValue, null, 2);
 		$scope.outputReadable5 = queryService.asReadable(newValue.group);
 		$scope.outputString5 = queryService.asString(newValue.group);
+	}, true);
+
+	$scope.fields6 = [
+		{
+			name: 'Favorite city', id: 1,
+			options: [
+				{ label: 'paris', name: 'paris', id: 1 },
+				{ label: 'london', name: 'london', id: 2 },
+				{ label: 'brussels', name: 'brussels', id: 3 }
+			]
+		},
+		{
+			name: 'Favorite city 2', id: 2,
+			options: [
+				{ label: 'paris', name: 'paris', id: 1 },
+				{ label: 'london', name: 'london', id: 2 },
+				{ label: 'brussels', name: 'brussels', id: 3 }
+			]
+		}
+	];
+
+	$templateCache.put('inTemplate',
+		'<div ng-dropdown-multiselect options="rule.field.options" selected-model="rule.data"></div>'
+	);
+
+	$scope.comparators6 = [
+		{
+			id: 1, name: 'in', value: '->', dataTemplate: 'inTemplate', defaultData: [],
+			isValid: function(data) {
+				return angular.isArray(data) && data.length > 0;
+			}
+		},
+		{ id: 2, name: 'equal to', value: '==' }
+	];
+
+	$scope.operators6 = [
+		{ name: 'AND', value: '&&' }
+	];
+
+	$scope.settings6 = {
+		nesting: false,
+		addIconClass: 'glyphicon glyphicon-plus',
+		removeIconClass: 'glyphicon glyphicon-minus',
+		addButtonClass: 'btn btn-sm btn-success',
+		removeButtonClass: 'btn btn-sm btn-danger'
+	}
+
+	$scope.filter6 = {
+		group: {
+			operator: $scope.operators3[0], rules: []
+		}
+	};
+	$scope.json6 = null;
+
+	$scope.$watch('filter6', function(newValue) {
+		$scope.json6 = JSON.stringify(newValue, null, 2);
+		$scope.output6Readable = queryService.asReadable(newValue.group);
+		$scope.output6String = queryService.asString(newValue.group);
 	}, true);
 }]);
