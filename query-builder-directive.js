@@ -49,6 +49,8 @@ queryBuilder.factory('queryService', [function() {
 		parseFromString: parseFromString,
 		isInValid: isInValid,
 		isValid: isValid,
+		ruleIsInvalid: ruleIsInvalid,
+		ruleIsValid: ruleIsValid,
 	}
 
 	function getDataValue(data, options) {
@@ -332,10 +334,18 @@ queryBuilder.factory('queryService', [function() {
 			if (!!rule.group) {
 				groupIsValid = groupIsValid && isValid(rule.group);
 			} else {
-				groupIsValid = groupIsValid && (!!rule.comparator && (!rule.comparator.isValid || rule.comparator.isValid(rule.data, rule.field)));
+				groupIsValid = groupIsValid && ruleIsValid(rule);
 			}
 		});
 		return groupIsValid;
+	}
+
+	function ruleIsInvalid(rule) {
+		return !ruleIsValid(rule);
+	}
+
+	function ruleIsValid(rule) {
+		return (!!rule.comparator && (!rule.comparator.isValid || rule.comparator.isValid(rule.data, rule.field)))
 	}
 }]);
 
@@ -486,13 +496,15 @@ queryBuilder.directive('queryBuilder', ['$compile', 'queryService', function($co
 				vm.change();
 			};
 
-			vm.changeComparator = function(ruleId) {
-				if (!!vm.group.rules[ruleId].comparator && !!vm.group.rules[ruleId].comparator.defaultData) {
-					if (typeof vm.group.rules[ruleId].data !== typeof vm.group.rules[ruleId].comparator.defaultData ||
-						Array.isArray(vm.group.rules[ruleId].data) !== Array.isArray(vm.group.rules[ruleId].comparator.defaultData)) {
-						vm.group.rules[ruleId].data = JSON.parse(JSON.stringify(vm.group.rules[ruleId].comparator.defaultData));
+			vm.changeComparator = function (ruleId) {
+				if (angular.isDefined(vm.group.rules[ruleId].comparator) &&
+					angular.isDefined(vm.group.rules[ruleId].comparator.defaultData)) {
+					if ((typeof vm.group.rules[ruleId].data !== typeof vm.group.rules[ruleId].comparator.defaultData ||
+						Array.isArray(vm.group.rules[ruleId].data) !== Array.isArray(vm.group.rules[ruleId].comparator.defaultData)) ||
+						(queryService.ruleIsInvalid(vm.group.rules[ruleId]))) {
+							vm.group.rules[ruleId].data = JSON.parse(JSON.stringify(vm.group.rules[ruleId].comparator.defaultData));
 					}
-				} else {
+				} else if (queryService.ruleIsInvalid(vm.group.rules[ruleId])) {
 					vm.group.rules[ruleId].data = '';
 				}
 				vm.change();

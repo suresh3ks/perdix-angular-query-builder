@@ -86,8 +86,8 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 	];
 
 	$scope.comparators2 = [
-		{ id: 1, name: 'equal to', value: '=='},
-		{ id: 2, name: 'not equal to', value: '!=' },
+		{ id: 1, name: 'equal to', value: '==', defaultData: ''},
+		{ id: 2, name: 'not equal to', value: '!=', defaultData: ''},
 		{ id: 3, name: 'smaller than', value: '<' },
 		{ id: 4, name: 'smaller than or equal to', value: '<=' },
 		{ id: 5, name: 'greater than', value: '>' },
