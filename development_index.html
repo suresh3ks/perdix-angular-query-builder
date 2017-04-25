@@ -108,7 +108,7 @@
 								<p ng-bind-html="output3String"></p>
 							</div>
 
-							<query-builder fields="fields3" operators="operators3" comparators="comparators3" group="filter3.group" settings="settings3"></query-builder>
+							<query-builder fields="fields3" operators="operators3" comparators="comparators3" group="filter3.group" settings="settings3" as-string="queryAsString3"></query-builder>
 						</div>
 					</div>
 				</div>
@@ -585,7 +585,7 @@ $scope.queryAsString2 = '((2=="23"||3!="2")&&1=="1")';
 </script>
 <script type="text/ng-template" id="example3">
 // HTML
-<query-builder fields="fields3" operators="operators3" comparators="comparators3" group="filter3.group" settings="settings3"></query-builder>
+<query-builder fields="fields3" operators="operators3" comparators="comparators3" group="filter3.group" settings="settings3" as-string="queryAsString3"></query-builder>
 // Javascript
 $scope.fields3 = [
 	{

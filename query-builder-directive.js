@@ -291,7 +291,13 @@ queryBuilder.factory('queryService', [function() {
 
 			if (!!rule.field.options && rule.field.options.length > 0) {
 				var dataString = spec.substring(String(rule.field.id).length + String(rule.comparator.value).length + 1, spec.length - 1);
-				if (dataString.indexOf(',') === -1) {
+				if (dataString.length === 0) {
+					if (Array.isArray(rule.comparator.defaultData)) {
+						rule.data = [];
+					} else {
+						rule.data = '';
+					}
+				} else if (dataString.indexOf(',') === -1) {
 					rule.field.options.forEach(function(option) {
 						var optionIdAsString = String(option.id);
 						if (dataString.indexOf(optionIdAsString) !== -1 && optionIdAsString.length === dataString.length) {

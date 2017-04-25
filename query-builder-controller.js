@@ -160,11 +160,8 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 		removeButtonClass: 'btn btn-sm btn-danger'
 	}
 
-	$scope.filter3 = {
-		group: {
-			operator: $scope.operators3[0], rules: []
-		}
-	};
+	$scope.filter3 = {};
+	$scope.queryAsString3 = '(1->"")';
 	$scope.json3 = null;
 
 	$scope.$watch('filter3', function(newValue) {
