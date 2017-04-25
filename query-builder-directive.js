@@ -254,21 +254,40 @@ queryBuilder.factory('queryService', [function() {
 			};
 			var indexOfComparator;
 
-			comparators.forEach(function(comparator) {
-				if (spec.indexOf(comparator.value) !== -1) {
-					rule.comparator = comparator;
-					indexOfComparator = spec.indexOf(comparator.value);
-					return;
-				}
-			});
+			var triedComparators = [];
+			var comparatorFound = false;
+			var fieldFound = false;
+			var unfindable = false;
 
-			fields.forEach(function(field) {
-				var fieldIdAsString = String(field.id);
-				if (spec.indexOf(fieldIdAsString) === 0 && fieldIdAsString.length === indexOfComparator) {
-					rule.field = field;
-					rule.fieldId = field.id + '';
+			while ((!comparatorFound || !fieldFound) && !unfindable) {
+				comparatorFound = comparators.some(function(comparator) {
+					if (spec.indexOf(comparator.value) !== -1 && triedComparators.indexOf(comparator) < 0) {
+						rule.comparator = comparator;
+						triedComparators.push(comparator);
+						indexOfComparator = spec.indexOf(comparator.value);
+						return true;
+					}
+					return false;
+				});
+
+				if (!comparatorFound) {
+					unfindable = true;
+				} else {
+					fieldFound = fields.some(function(field) {
+						var fieldIdAsString = String(field.id);
+						if (spec.indexOf(fieldIdAsString) === 0 && fieldIdAsString.length === indexOfComparator && (!field.disabledComparators || field.disabledComparators.indexOf(rule.comparator.id) < 0)) {
+							rule.field = field;
+							rule.fieldId = field.id + '';
+							return true;
+						}
+						return false;
+					});
 				}
-			});
+			}
+
+			if (unfindable) {
+				throw new Error('Parsing of filter from string failed due to comparator that could not be found');
+			}
 
 			if (!!rule.field.options && rule.field.options.length > 0) {
 				var dataString = spec.substring(String(rule.field.id).length + String(rule.comparator.value).length + 1, spec.length - 1);

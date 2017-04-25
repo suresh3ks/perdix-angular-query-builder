@@ -80,18 +80,19 @@ app.controller('QueryBuilderCtrl', ['$scope', '$templateCache', 'queryService', 
 				{ name: 'brussels', id: 3 }
 			],
 			disabledComparators: [
-				3, 4, 5, 6
+				3, 4, 5, 6, 2
 			]
 		}
 	];
 
 	$scope.comparators2 = [
 		{ id: 1, name: 'equal to', value: '==', defaultData: ''},
-		{ id: 2, name: 'not equal to', value: '!=', defaultData: ''},
+		{ id: 2, name: 'not equal to 1', value: '!=', defaultData: '' },
 		{ id: 3, name: 'smaller than', value: '<' },
 		{ id: 4, name: 'smaller than or equal to', value: '<=' },
 		{ id: 5, name: 'greater than', value: '>' },
 		{ id: 6, name: 'greater than or equal to', value: '>=' },
+		{ id: 7, name: 'not equal to 2', value: '!=', defaultData: '' },
 	];
 
 	$scope.operators2 = [
