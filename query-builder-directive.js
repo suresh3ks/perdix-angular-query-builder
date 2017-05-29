@@ -58,7 +58,7 @@ queryBuilder.factory('queryService', [function() {
 		if (data.id) {
 			options.some(function(option) {
 				if (option.id === data.id) {
-					value = option.value || option.id;
+					value = option.id || option.value;
 					return true;
 				}
 			})
