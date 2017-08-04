@@ -65,6 +65,9 @@ queryBuilder.factory('queryService', [function() {
 		} else {
 			value = data.value;
 		}
+		if (angular.isUndefined(value)) {
+			value = data.id;
+		}
 		return value;
 	}
 
@@ -298,25 +301,41 @@ queryBuilder.factory('queryService', [function() {
 						rule.data = '';
 					}
 				} else if (dataString.indexOf(',') === -1) {
-					rule.field.options.forEach(function(option) {
-						var optionIdAsString = String(option.id);
-						if (dataString.indexOf(optionIdAsString) !== -1 && optionIdAsString.length === dataString.length) {
-							if (Array.isArray(rule.comparator.defaultData)) {
-								rule.data = [JSON.parse(JSON.stringify(option))];
-							} else {
-								rule.data = JSON.parse(JSON.stringify(option));
-							}
+					if (angular.isFunction(rule.comparator.getDataObjectById)) {
+						var value = rule.comparator.getDataObjectById(dataString, rule.field);
+						if (Array.isArray(rule.comparator.defaultData)) {
+							rule.data = [value];
+						} else {
+							rule.data = value;
 						}
-					});
+					} else {
+						rule.field.options.forEach(function(option) {
+							var optionIdAsString = String(option.id);
+							if (dataString.indexOf(optionIdAsString) !== -1 && optionIdAsString.length === dataString.length) {
+								if (Array.isArray(rule.comparator.defaultData)) {
+									rule.data = [JSON.parse(JSON.stringify(option))];
+								} else {
+									rule.data = JSON.parse(JSON.stringify(option));
+								}
+							}
+						});
+					}
 				} else {
 					rule.data = [];
 					var optionIds = dataString.split(',');
-					rule.field.options.forEach(function(option) {
-						var optionIdAsString = String(option.id);
-						if (optionIds.indexOf(optionIdAsString) !== -1) {
-							rule.data.push(JSON.parse(JSON.stringify(option)));
-						}
-					});
+					if (angular.isFunction(rule.comparator.getDataObjectById)) {
+						optionIds.forEach(function (optionId) {
+							var value = rule.comparator.getDataObjectById(optionId, rule.field);
+							rule.data.push(value);
+						});
+					} else {
+						rule.field.options.forEach(function(option) {
+							var optionIdAsString = String(option.id);
+							if (optionIds.indexOf(optionIdAsString) !== -1) {
+								rule.data.push(JSON.parse(JSON.stringify(option)));
+							}
+						});
+					}
 				}
 			} else {
 				rule.data = spec.substring(String(rule.field.id).length + String(rule.comparator.value).length + 1, spec.length - 1);
